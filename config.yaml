@@ -1,0 +1,4 @@
+Chunk:
+  size: 1024
+Master:
+  address: ":9000"
