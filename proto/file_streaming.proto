@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package filestreamer;
+
+option go_package = "./filesystem/proto/chunkserver;filestreamer"; 
+
+service FileStreamingService {
+    rpc Read(ReadReq)returns (stream Payload);
+    rpc Write(stream Payload) returns (WriteRes);
+    rpc Delete(DeleteReq) returns (DeleteRes);
+}
+
+message Payload {
+    bytes data = 1;
+}
+
+message ReadReq {
+}
+
+message WriteRes {
+    bool status = 1;
+}
+
+message DeleteReq {
+}
+
+message DeleteRes {
+    bool status = 1;
+}
