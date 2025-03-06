@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	fileId, userId, err := fs.NewFileSystem().Upload("./test.txt")
+	fileId, userId, err := fs.NewFileSystem().Upload("./test_file.txt")
 	if err != nil {
 		log.Errorf("got error got this: %v", err)
 	}

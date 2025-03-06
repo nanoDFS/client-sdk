@@ -20,7 +20,7 @@ func NewUploader(filePath string) *Uploader {
 }
 
 func (t *Uploader) Upload() (string, string, error) {
-	info, file, err := t.openFile(t.filePath)
+	info, _, err := t.openFile(t.filePath)
 	if err != nil {
 		return "", "", err
 	}
@@ -32,7 +32,7 @@ func (t *Uploader) Upload() (string, string, error) {
 		return "", "", err
 	}
 
-	t.streamMux(file, info, metaResponse)
+	t.streamMux(info, metaResponse)
 	return fileId, userId, nil
 }
 
@@ -58,7 +58,7 @@ func (t *Uploader) connectToMaster(fileId string, userId string, info os.FileInf
 	return resp, err
 }
 
-func (t *Uploader) streamMux(file *os.File, fileInfo os.FileInfo, metaResponse *fm_pb.UploadResp) {
+func (t *Uploader) streamMux(fileInfo os.FileInfo, metaResponse *fm_pb.UploadResp) {
 	chunkSize := config.LoadConfig().Chunk.Size
 	chunkCount := fileInfo.Size() / chunkSize
 	if fileInfo.Size()%chunkSize != 0 {
@@ -74,7 +74,10 @@ func (t *Uploader) streamMux(file *os.File, fileInfo os.FileInfo, metaResponse *
 			end = fileInfo.Size()
 		}
 		wg.Add(1)
-		go t.stream(wg, file, start, end, metaResponse.ChunkServers[i].Address, int64(i), string(metaResponse.GetAccessToken()))
+		go func(start int64, end int64, i int64) {
+			_, file, _ := t.openFile(t.filePath)
+			t.stream(wg, file, start, end, metaResponse.ChunkServers[i].Address, int64(i), string(metaResponse.GetAccessToken()))
+		}(start, end, i)
 	}
 
 	wg.Wait()
