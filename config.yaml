@@ -1,4 +1,4 @@
 Chunk:
-  size: 1024
+  size: 10240
 Master:
   address: ":9000"
