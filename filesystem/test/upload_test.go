@@ -10,7 +10,7 @@ import (
 
 func TestUpload(t *testing.T) {
 	fileId, userId, err := fs.NewFileSystem().Upload("./test_file.txt")
-	fmt.Print(fileId, userId)
+	fmt.Print(fileId, userId, userId)
 	if err != nil {
 		t.Errorf("got error got this: %v", err)
 	}
