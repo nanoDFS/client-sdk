@@ -20,5 +20,10 @@ func main() {
 		log.Errorf("got error got this: %v", err)
 	}
 
+	err = fs.NewFileSystem().Delete(fileId, userId)
+	if err != nil {
+		log.Errorf("got error got this: %v", err)
+	}
+
 	//select {}
 }
