@@ -10,6 +10,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/nanoDFS/client-sdk/crypto"
 	fs_pb "github.com/nanoDFS/client-sdk/filesystem/proto/chunkserver"
+	"github.com/nanoDFS/client-sdk/utils/config"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
@@ -49,7 +50,7 @@ func (t *Uploader) stream(opts streamOpts) {
 		log.Errorf("%v", err)
 		return
 	}
-	buff := make([]byte, 1024)
+	buff := make([]byte, config.LoadConfig().Chunk.PayloadSize-16) // AES GCM: auth tag takes 16 bytes
 	for {
 		n, err := opts.file.Read(buff)
 		if err != nil && err.Error() != "EOF" {

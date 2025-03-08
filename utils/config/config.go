@@ -11,7 +11,8 @@ import (
 
 type Config struct {
 	Chunk struct {
-		Size int64 `yaml:"size"`
+		Size        int64 `yaml:"size"`
+		PayloadSize int64 `yaml:"payloadsize"`
 	} `yaml:"Chunk"`
 	Master struct {
 		Addr string `yaml:"address"`
@@ -27,7 +28,7 @@ func LoadConfig() *Config {
 	if config != nil {
 		return config
 	}
-	data, err := os.ReadFile("/Users/nagarajpoojari/Desktop/learn/nanoDFS/client-sdk/client-sdk/config.yaml")
+	data, err := os.ReadFile("./config.yaml")
 	if err != nil {
 		log.Fatalf("error reading file: %v", err)
 	}
