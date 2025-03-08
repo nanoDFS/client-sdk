@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/google/uuid"
+	"github.com/nanoDFS/client-sdk/crypto"
 	fm_pb "github.com/nanoDFS/client-sdk/filesystem/proto/master"
 	"github.com/nanoDFS/client-sdk/utils/config"
 	"google.golang.org/grpc"
@@ -13,10 +14,11 @@ import (
 
 type Uploader struct {
 	filePath string
+	key      crypto.CryptoKey
 }
 
-func NewUploader(filePath string) *Uploader {
-	return &Uploader{filePath: filePath}
+func NewUploader(key crypto.CryptoKey, filePath string) *Uploader {
+	return &Uploader{filePath: filePath, key: key}
 }
 
 func (t *Uploader) Upload() (string, string, error) {
@@ -74,7 +76,7 @@ func (t *Uploader) streamMux(file *os.File, fileInfo os.FileInfo, metaResponse *
 			end = fileInfo.Size()
 		}
 		wg.Add(1)
-		go t.stream(wg, file, start, end, metaResponse.ChunkServers[i].Address, int64(i), string(metaResponse.GetAccessToken()))
+		go t.stream(streamOpts{wg, file, start, end, metaResponse.ChunkServers[i].Address, int64(i), string(metaResponse.GetAccessToken()), t.key})
 	}
 
 	wg.Wait()

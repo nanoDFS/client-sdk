@@ -2,26 +2,31 @@ package download
 
 import (
 	"context"
-	"fmt"
+	"path"
 	"sync"
 
 	"github.com/charmbracelet/log"
+	"github.com/nanoDFS/client-sdk/crypto"
 	fm_pb "github.com/nanoDFS/client-sdk/filesystem/proto/master"
 	"github.com/nanoDFS/client-sdk/utils/config"
 	"google.golang.org/grpc"
 )
 
 type Downloader struct {
-	fileId   string
-	userId   string
-	filePath string
+	fileId     string
+	userId     string
+	filePath   string
+	key        crypto.CryptoKey
+	outputPath string
 }
 
-func NewDownloader(fileId string, userId string, filePath string) *Downloader {
+func NewDownloader(fileId string, userId string, key crypto.CryptoKey, filePath string) *Downloader {
 	return &Downloader{
-		fileId:   fileId,
-		userId:   userId,
-		filePath: filePath,
+		fileId:     fileId,
+		userId:     userId,
+		filePath:   filePath,
+		key:        key,
+		outputPath: path.Join(filePath, "output"),
 	}
 }
 
@@ -32,6 +37,7 @@ func (t *Downloader) Download() error {
 	}
 
 	t.streamMux(metaResponse)
+	t.stitchFiles(t.outputPath, t.filePath)
 	return nil
 }
 
@@ -44,9 +50,7 @@ func (t *Downloader) connectToMaster() (*fm_pb.DownloadResp, error) {
 	defer conn.Close()
 	client := fm_pb.NewFileMetadataServiceClient(conn)
 	resp, err := client.DownloadFile(context.Background(), &fm_pb.FileDownloadReq{FileId: t.fileId, UserId: t.userId})
-	if err != nil {
-		fmt.Println(err)
-	}
+
 	return resp, err
 }
 
@@ -56,7 +60,7 @@ func (t *Downloader) streamMux(metaResponse *fm_pb.DownloadResp) {
 	wg := &sync.WaitGroup{}
 	for i := range chunkCount {
 		wg.Add(1)
-		go t.stream(wg, metaResponse.ChunkServers[i].Address, int64(i), string(metaResponse.GetAccessToken()))
+		go t.stream(streamOpts{wg, metaResponse.ChunkServers[i].Address, int64(i), string(metaResponse.GetAccessToken()), t.key})
 	}
 
 	wg.Wait()

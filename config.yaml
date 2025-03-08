@@ -1,4 +1,5 @@
 Chunk:
-  size: 10240
+  size: 2048000
+  payloadsize: 102400
 Master:
   address: ":9000"
