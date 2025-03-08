@@ -1,4 +1,4 @@
-# 🐼 PandaFS  
+# panda.fs  
 <div align="center">
     <img src="https://github.com/user-attachments/assets/6f8dbe11-40c1-447e-8daf-0bf996df75dc" alt="Banner Image" width="100%">
 </div>
