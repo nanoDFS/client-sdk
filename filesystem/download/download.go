@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/charmbracelet/log"
+	"github.com/nanoDFS/client-sdk/crypto"
 	fm_pb "github.com/nanoDFS/client-sdk/filesystem/proto/master"
 	"github.com/nanoDFS/client-sdk/utils/config"
 	"google.golang.org/grpc"
@@ -15,14 +16,16 @@ type Downloader struct {
 	fileId     string
 	userId     string
 	filePath   string
+	key        crypto.CryptoKey
 	outputPath string
 }
 
-func NewDownloader(fileId string, userId string, filePath string) *Downloader {
+func NewDownloader(fileId string, userId string, key crypto.CryptoKey, filePath string) *Downloader {
 	return &Downloader{
 		fileId:     fileId,
 		userId:     userId,
 		filePath:   filePath,
+		key:        key,
 		outputPath: path.Join(filePath, "output"),
 	}
 }
@@ -57,7 +60,7 @@ func (t *Downloader) streamMux(metaResponse *fm_pb.DownloadResp) {
 	wg := &sync.WaitGroup{}
 	for i := range chunkCount {
 		wg.Add(1)
-		go t.stream(wg, metaResponse.ChunkServers[i].Address, int64(i), string(metaResponse.GetAccessToken()))
+		go t.stream(streamOpts{wg, metaResponse.ChunkServers[i].Address, int64(i), string(metaResponse.GetAccessToken()), t.key})
 	}
 
 	wg.Wait()
