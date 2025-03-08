@@ -1,4 +1,8 @@
 # 🐼 PandaFS  
+<div align="center">
+    <img src="https://github.com/user-attachments/assets/6f8dbe11-40c1-447e-8daf-0bf996df75dc" alt="Banner Image" width="100%">
+</div>
+
 *A GFS-like distributed file system for scalable and reliable storage.*  
 
 PandaFS is a simple **distributed file system** based on the **Master-Slave architecture**, designed for **fault tolerance, replication, and security**. It ensures reliable data storage and retrieval across multiple nodes.  
@@ -44,4 +48,3 @@ fileId, userId, err := fs.NewFileSystem().Upload(key, "./test.mp4")
 
 err = fs.NewFileSystem().Download(fileId, userId, key, "./temp")
 ```
-
